@@ -2,6 +2,8 @@ package com.example.springcommerce.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,5 +25,8 @@ public class CartItem {
     private ProductVariant variant;
 
     private Integer quantity;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    @CreationTimestamp
     private LocalDateTime createdAt;
 }

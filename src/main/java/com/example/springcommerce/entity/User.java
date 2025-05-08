@@ -22,11 +22,17 @@ public class User {
 
     private String fullName;
 
+    @Column(columnDefinition = "TEXT")
+    private String address;
+
     @Column(unique = true)
     private String email;
 
+
+    // In User.java
+    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private String role; // ADMIN or CUSTOMER
+    private Role role;
 
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
