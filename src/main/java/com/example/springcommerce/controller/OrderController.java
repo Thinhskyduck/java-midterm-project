@@ -11,10 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 // import org.springframework.data.domain.Page;
 // import org.springframework.data.domain.Pageable;
 // import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import org.springframework.data.domain.Pageable; // Thêm import
+import org.springframework.data.web.PageableDefault;
 import java.util.List;
 
 @RestController
@@ -45,24 +48,26 @@ public class OrderController {
 
     // Endpoint to get orders for a specific user
     // Example: GET /api/orders?userId=1
-    @GetMapping
-    public ResponseEntity<List<OrderResponse>> getOrdersByUserId(@RequestParam Long userId) {
-        // TODO: When security is implemented, this userId should ideally come from the authenticated principal
-        // or be validated that the authenticated user is requesting their own orders or is an admin.
-        List<OrderResponse> orders = orderService.getOrdersByUserId(userId);
-        return ResponseEntity.ok(orders);
-    }
+//    @GetMapping
+//    public ResponseEntity<List<OrderResponse>> getOrdersByUserId(@RequestParam Long userId) {
+//        // TODO: When security is implemented, this userId should ideally come from the authenticated principal
+//        // or be validated that the authenticated user is requesting their own orders or is an admin.
+//        List<OrderResponse> orders = orderService.getOrdersByUserId(userId);
+//        return ResponseEntity.ok(orders);
+//    }
 
     // If using Pageable for getOrdersByUserId:
-    /*
+
     @GetMapping
     public ResponseEntity<Page<OrderResponse>> getOrdersByUserId(
-            @RequestParam Long userId,
-            @PageableDefault(size = 10, sort = "createdAt,desc") Pageable pageable) {
-        Page<OrderResponse> ordersPage = orderService.getOrdersByUserId(userId, pageable);
+            @RequestParam Long userId, // userId vẫn cần thiết để lọc
+            @PageableDefault(size = 5, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        // @PageableDefault: size=5 (khớp với pageSize trong my-orders.js), sort mặc định theo createdAt giảm dần
+        // TODO: Security check - user chỉ xem được order của mình hoặc là admin
+        Page<OrderResponse> ordersPage = orderService.getOrdersByUserIdPaginated(userId, pageable); // Đổi tên hàm trong service
         return ResponseEntity.ok(ordersPage);
     }
-    */
+
 
 
     // Endpoint to update order status (typically for Admin)

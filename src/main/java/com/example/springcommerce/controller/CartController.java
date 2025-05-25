@@ -1,7 +1,7 @@
 // src/main/java/com/example/springcommerce/controller/CartController.java
 package com.example.springcommerce.controller;
 
-import com.example.springcommerce.dto.AddToCartRequest;
+import com.example.springcommerce.dto.AddToCartReq;
 import com.example.springcommerce.dto.CartItemResponse;
 import com.example.springcommerce.dto.UpdateCartItemQuantityRequest; // New DTO
 import com.example.springcommerce.service.CartService;
@@ -34,7 +34,7 @@ public class CartController {
 
     // POST /api/cart/add
     @PostMapping("/add")
-    public ResponseEntity<Void> addToCart(@Valid @RequestBody AddToCartRequest request) {
+    public ResponseEntity<Void> addToCart(@Valid @RequestBody AddToCartReq request) {
         cartService.addToCart(request);
         return ResponseEntity.status(HttpStatus.CREATED).build(); // Or return the updated cart
     }

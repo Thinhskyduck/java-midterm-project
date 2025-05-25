@@ -1,7 +1,7 @@
 // src/main/java/com/example/springcommerce/service/CartServiceImpl.java
 package com.example.springcommerce.service;
 
-import com.example.springcommerce.dto.AddToCartRequest;
+import com.example.springcommerce.dto.AddToCartReq;
 import com.example.springcommerce.dto.CartItemResponse;
 import com.example.springcommerce.dto.UpdateCartItemQuantityRequest; // Import new DTO
 import com.example.springcommerce.entity.Cart;
@@ -9,7 +9,6 @@ import com.example.springcommerce.entity.CartItem;
 import com.example.springcommerce.entity.ProductVariant;
 import com.example.springcommerce.entity.User;
 import com.example.springcommerce.exception.InsufficientStockException;
-import com.example.springcommerce.exception.ResourceNotFoundException; // Or use EntityNotFoundException
 import com.example.springcommerce.repository.CartItemRepository;
 import com.example.springcommerce.repository.CartRepository;
 import com.example.springcommerce.repository.ProductVariantRepository;
@@ -37,7 +36,7 @@ public class CartServiceImpl implements CartService {
 
     // ... (getCartItems, addToCart, removeFromCart, getOrCreateCart methods from before) ...
     @Override
-    @Transactional(readOnly = true)
+    @Transactional
     public List<CartItemResponse> getCartItems(Long userId) {
         Cart cart = getOrCreateCart(userId);
         return cartItemRepo.findByCartId(cart.getId()).stream().map(this::mapCartItemToResponse).collect(Collectors.toList());
@@ -45,7 +44,7 @@ public class CartServiceImpl implements CartService {
 
     @Override
     @Transactional
-    public void addToCart(AddToCartRequest request) {
+    public void addToCart(AddToCartReq request) {
         Long userId = request.getUserId();
         Long variantId = request.getVariantId();
         int quantityToAdd = request.getQuantity();

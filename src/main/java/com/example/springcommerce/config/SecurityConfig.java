@@ -1,11 +1,15 @@
 // src/main/java/com/example/springcommerce/config/SecurityConfig.java
 package com.example.springcommerce.config;
 
-import com.example.springcommerce.service.UserDetailsServiceImpl; // Your UserDetailsService
+import com.example.springcommerce.service.UserDetailsServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.Ordered;
+import org.springframework.core.annotation.Order;
+import org.springframework.http.HttpMethod; // <<< THÊM IMPORT NÀY
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -15,17 +19,21 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher; // <<< THÊM IMPORT NÀY
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.filter.CorsFilter;
 
 @Configuration
 @EnableWebSecurity
-@EnableMethodSecurity(prePostEnabled = true) // To enable method-level security like @PreAuthorize
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsService; // Your custom UserDetailsService
+    private UserDetailsServiceImpl userDetailsService;
 
     @Autowired
-    private JwtAuthenticationFilter jwtAuthenticationFilter; // Your JWT filter
+    private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -38,26 +46,78 @@ public class SecurityConfig {
     }
 
     @Bean
+    @Order(Ordered.HIGHEST_PRECEDENCE)
+    public CorsFilter corsFilter() {
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        CorsConfiguration config = new CorsConfiguration();
+        config.setAllowCredentials(true);
+        config.addAllowedOriginPattern("*");
+        config.addAllowedHeader("*");
+        config.addAllowedMethod("*");
+        source.registerCorsConfiguration("/**", config);
+        return new CorsFilter(source);
+    }
+
+    @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                .csrf(csrf -> csrf.disable()) // Disable CSRF for stateless APIs
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS)) // Stateless sessions
+                .cors(Customizer.withDefaults()) // <<< THỬ THÊM CẤU HÌNH CORS RÕ RÀNG HƠN
+                .csrf(csrf -> csrf.disable())
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll() // Allow auth endpoints
-                        .requestMatchers("/api/products/**").permitAll() // Allow product browsing
-                        .requestMatchers("/api/categories/**").permitAll() // Allow category browsing
-                        .requestMatchers("/api/brands/**").permitAll()     // Allow brand browsing
+                        // Public static resources and main HTML pages
                         .requestMatchers(
-                                "/swagger-ui/**",          // For Swagger UI HTML, CSS, JS files
-                                "/v3/api-docs/**",         // For the OpenAPI spec (JSON or YAML)
-                                "/swagger-resources/**",   // Sometimes needed for Swagger resources
-                                "/webjars/**"              // For Swagger UI webjar dependencies
-                        ).permitAll() // If using Swagger/OpenAPI
-                        .anyRequest().authenticated() // All other requests require authentication
-                );
-
-        // Add JWT token filter before UsernamePasswordAuthenticationFilter
-        http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                                new AntPathRequestMatcher("/"), // Trang chủ
+                                new AntPathRequestMatcher("/index.html"),
+                                new AntPathRequestMatcher("/shop-grid.html"),
+                                new AntPathRequestMatcher("/shop-details.html"),
+                                new AntPathRequestMatcher("/shoping-cart.html"),
+                                new AntPathRequestMatcher("/checkout.html"),
+                                new AntPathRequestMatcher("/order-confirmation.html"),
+                                new AntPathRequestMatcher("/login.html"),
+                                new AntPathRequestMatcher("/my-orders.html"),
+                                new AntPathRequestMatcher("/profile.html"),
+                                new AntPathRequestMatcher("/register.html"),
+                                new AntPathRequestMatcher("/forgot-password.html"),
+                                new AntPathRequestMatcher("/auth/reset-password-page/**"),
+                                new AntPathRequestMatcher("/css/**"),
+                                new AntPathRequestMatcher("/js/**"),
+                                new AntPathRequestMatcher("/img/**"),
+                                new AntPathRequestMatcher("/fonts/**"),
+                                new AntPathRequestMatcher("/sass/**"),
+                                new AntPathRequestMatcher("/admin/manage_products.html")
+                        ).permitAll()
+                        // Swagger UI and API docs
+                        .requestMatchers(
+                                new AntPathRequestMatcher("/swagger-ui/**"),
+                                new AntPathRequestMatcher("/v3/api-docs/**"),
+                                new AntPathRequestMatcher("/swagger-ui.html"),
+                                new AntPathRequestMatcher("/swagger-resources/**"),
+                                new AntPathRequestMatcher("/webjars/**")
+                        ).permitAll()
+                        // API AUTH
+                        .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
+                        // PUBLIC APIs (Explicitly state HttpMethod.GET for public read APIs)
+                        .requestMatchers(new AntPathRequestMatcher("/api/products", HttpMethod.GET.toString())).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/products/*", HttpMethod.GET.toString())).permitAll() // Cho GET /api/products/{id}
+                        .requestMatchers(new AntPathRequestMatcher("/api/categories", HttpMethod.GET.toString())).permitAll() // <<< CHO PHÉP GET CATEGORIES
+                        .requestMatchers(new AntPathRequestMatcher("/api/categories/*", HttpMethod.GET.toString())).permitAll() // Cho GET /api/categories/{id} (nếu có)
+                        .requestMatchers(new AntPathRequestMatcher("/api/brands", HttpMethod.GET.toString())).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/brands/*", HttpMethod.GET.toString())).permitAll() // Cho GET /api/brands/{id} (nếu có)
+                        .requestMatchers("/api/cart/**").authenticated()
+                        .requestMatchers("/api/orders/**").authenticated()
+                        .requestMatchers("/api/users/me/**").authenticated() // << THÊM DÒNG NÀY
+                        // Các API CRUD khác cho product/category/brand (POST, PUT, DELETE) YÊU CẦU XÁC THỰC (ví dụ: ADMIN)
+                        // Ví dụ:
+                        // .requestMatchers(new AntPathRequestMatcher("/api/products", HttpMethod.POST.toString())).hasRole("ADMIN")
+                        // .requestMatchers(new AntPathRequestMatcher("/api/categories", HttpMethod.POST.toString())).hasRole("ADMIN")
+                        .requestMatchers("/admin/**").hasRole("ADMIN") // Bảo vệ tất cả các trang trong /admin/
+                        .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+                        .anyRequest().authenticated() // Tất cả các request khác yêu cầu xác thực
+                )
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

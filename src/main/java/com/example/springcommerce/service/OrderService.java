@@ -2,7 +2,8 @@
 package com.example.springcommerce.service;
 
 import com.example.springcommerce.dto.OrderResponse;
-
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface OrderService {
@@ -16,6 +17,6 @@ public interface OrderService {
 
     // Option 2: Paginated list (better for many orders)
     // Page<OrderResponse> getOrdersByUserId(Long userId, Pageable pageable);
-
+    Page<OrderResponse> getOrdersByUserIdPaginated(Long userId, Pageable pageable);
     OrderResponse updateOrderStatus(Long orderId, String newStatus);
 }

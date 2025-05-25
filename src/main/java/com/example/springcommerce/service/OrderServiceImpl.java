@@ -124,18 +124,17 @@ public class OrderServiceImpl implements OrderService {
                 .collect(Collectors.toList());
     }
 
-    // If using Pageable:
-    /*
     @Override
     @Transactional(readOnly = true)
-    public Page<OrderResponse> getOrdersByUserId(Long userId, Pageable pageable) {
-        if (!userRepository.existsById(userId)) {
+    public Page<OrderResponse> getOrdersByUserIdPaginated(Long userId, Pageable pageable) {
+        if (!userRepository.existsById(userId)) { // Vẫn kiểm tra user tồn tại
+            // Hoặc bạn có thể không cần kiểm tra nếu UserDetails từ security đã đảm bảo
             throw new ResourceNotFoundException("User not found with ID: " + userId);
         }
-        Page<Order> ordersPage = orderRepository.findByUserIdOrderByCreatedAtDesc(userId, pageable); // Assuming method in OrderRepository
-        return ordersPage.map(this::mapOrderToOrderResponse);
+        // OrderRepository cần phương thức hỗ trợ Pageable
+        Page<Order> ordersPage = orderRepository.findByUserId(userId, pageable); // Truyền pageable
+        return ordersPage.map(this::mapOrderToOrderResponse); // Dùng map của Page để chuyển đổi
     }
-    */
 
     @Override
     @Transactional

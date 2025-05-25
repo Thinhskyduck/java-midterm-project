@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "products")
@@ -33,7 +35,24 @@ public class Product {
     @JoinColumn(name = "brand_id")
     private Brand brand;
 
+    // <<< TRƯỜNG VARIANTS QUAN TRỌNG Ở ĐÂY >>>
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    @Builder.Default // Nếu bạn dùng @Builder và muốn khởi tạo mặc định
+    private List<ProductVariant> variants = new ArrayList<>(); // Khởi tạo để tránh NullPointerException
+
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
+
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+        updatedAt = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        updatedAt = LocalDateTime.now();
+    }
 }
 

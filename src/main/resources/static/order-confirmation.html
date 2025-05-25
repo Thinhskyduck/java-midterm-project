@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+    <html lang="zxx">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta name="description" content="Order Confirmation - SpringCommerce">
+        <meta name="keywords" content="Ogani, unica, creative, html">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <title>Order Confirmation | SpringCommerce</title>
+
+        <!-- Google Font -->
+        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@200;300;400;600;900&display=swap" rel="stylesheet">
+
+        <!-- Css Styles (Copy từ các trang khác) -->
+        <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
+        <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
+        <link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
+        <link rel="stylesheet" href="css/style.css" type="text/css">
+        <!-- Popper.js (bắt buộc cho tooltip, dropdown...) -->
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <!-- Bạn có thể bỏ bớt các CSS không cần thiết cho trang này nếu muốn (nice-select, owl.carousel, etc.) -->
+
+        <style>
+            .order-confirmation-section {
+                padding: 80px 0;
+                text-align: center;
+            }
+            .order-confirmation-section .icon_check_alt2 {
+                font-size: 80px;
+                color: #7fad39; /* Màu xanh của Ogani */
+                margin-bottom: 30px;
+            }
+            .order-confirmation-section h2 {
+                color: #1c1c1c;
+                font-weight: 700;
+                margin-bottom: 20px;
+            }
+            .order-confirmation-section p {
+                color: #6f6f6f;
+                font-size: 16px;
+                line-height: 28px;
+                margin-bottom: 15px;
+            }
+            .order-details-summary {
+                margin-top: 30px;
+                padding: 20px;
+                background-color: #f5f5f5;
+                border-radius: 5px;
+                text-align: left;
+                display: inline-block; /* Để căn giữa block */
+            }
+            .order-details-summary h5 {
+                margin-bottom: 15px;
+                font-weight: 700;
+                color: #1c1c1c;
+            }
+            .order-details-summary ul {
+                list-style: none;
+                padding-left: 0;
+            }
+            .order-details-summary ul li {
+                margin-bottom: 8px;
+                font-size: 15px;
+            }
+            .order-details-summary ul li strong {
+                color: #333;
+            }
+        </style>
+    </head>
+
+    <body>
+    <!-- Page Preloder -->
+    <div id="preloder">
+        <div class="loader"></div>
+    </div>
+
+    <!-- Header Section (Copy từ các trang khác) -->
+    <header class="header">
+        <!-- ... Nội dung header đầy đủ từ index.html hoặc checkout.html ... -->
+        <!-- (Bao gồm cả các div với id="humberger-auth-section", "header-auth-section", "humberger-cart-count", "header-cart-count") -->
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3">
+                    <div class="header__logo">
+                        <a href="./index.html"><img src="img/logo_2.png" alt=""></a>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <nav class="header__menu">
+                        <ul>
+                            <li><a href="./index.html">Home</a></li>
+                            <li><a href="./shop-grid.html">Shop</a></li>
+                            <li><a href="#">Pages</a>
+                                <ul class="header__menu__dropdown">
+                                    <li><a href="./shop-details.html">Shop Details</a></li>
+                                    <li><a href="./shoping-cart.html">Shopping Cart</a></li>
+                                    <li><a href="./checkout.html">Check Out</a></li>
+                                    <li><a href="./my-orders.html">My Orders</a></li>
+                                    <li><a href="./profile.html">My Profile</a></li>
+                                </ul>
+                            </li>
+                            <li><a href="./contact.html">Contact</a></li>
+                        </ul>
+                    </nav>
+                </div>
+                <div class="col-lg-3">
+                    <div class="header__cart">
+                        <ul>
+                            <li><a href="./shoping-cart.html"><i class="fa fa-shopping-bag"></i> <span id="header-cart-count">0</span></a></li>
+                        </ul>
+                        <div class="header__top__right__auth" id="header-auth-section" style="display: inline-block; margin-left: 20px;">
+                            <a href="./login.html"><i class="fa fa-user"></i> Login</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="humberger__open">
+                <i class="fa fa-bars"></i>
+            </div>
+        </div>
+    </header>
+    <!-- Header Section End -->
+
+    <!-- Breadcrumb Section Begin (Tùy chọn, có thể bỏ qua cho trang xác nhận đơn giản) -->
+    <section class="breadcrumb-section set-bg" data-setbg="img/breadcrumb.jpg">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12 text-center">
+                    <div class="breadcrumb__text">
+                        <h2>Order Confirmation</h2>
+                        <div class="breadcrumb__option">
+                            <a href="./index.html">Home</a>
+                            <span>Order Confirmation</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Breadcrumb Section End -->
+
+    <!-- Order Confirmation Section Begin -->
+    <section class="order-confirmation-section spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-12">
+                    <span class="icon_check_alt2"></span>
+                    <h2>Thank You For Your Order!</h2>
+                    <p>Your order has been placed successfully.</p>
+                    <p>Your Order ID is: <strong id="confirmed-order-id">Loading...</strong></p>
+                    <p>We will contact you shortly to confirm the details and delivery.</p>
+                    <p>Payment method: <strong>Cash on Delivery</strong>.</p>
+
+                    <div class="order-details-summary" id="order-summary-details" style="display: none;">
+                        <h5>Order Summary</h5>
+                        <ul id="confirmed-order-items">
+                            <!-- JS sẽ điền các item vào đây -->
+                        </ul>
+                        <p><strong>Total Amount:</strong> <span id="confirmed-order-total"></span></p>
+                        <p><strong>Shipping Address:</strong> <span id="confirmed-shipping-address"></span></p>
+                    </div>
+                    <br>
+                    <a href="./shop-grid.html" class="primary-btn" style="margin-right: 10px;">CONTINUE SHOPPING</a>
+                    <a href="./my-orders.html" class="primary-btn site-btn-secondary">VIEW MY ORDERS</a>
+                </div>
+            </div>
+        </div>
+    </section>
+    <!-- Order Confirmation Section End -->
+
+    <!-- Footer Section (Copy từ các trang khác) -->
+    <footer class="footer spad">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 col-md-6 col-sm-6">
+                    <div class="footer__about">
+                        <div class="footer__about__logo">
+                            <a href="./index.html"><img src="img/logo_2.png" alt=""></a>
+                        </div>
+                        <ul>
+                            <li>Address: Your Store Address, City</li>
+                            <li>Phone: +01 23.456.789</li>
+                            <li>Email: support@springcommerce.com</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-6 col-sm-6 offset-lg-1">
+                    <div class="footer__widget">
+                        <h6>Useful Links</h6>
+                        <ul>
+                            <li><a href="#">About Us</a></li>
+                            <li><a href="./shop-grid.html">Our Shop</a></li>
+                            <li><a href="#">Secure Shopping</a></li>
+                            <li><a href="#">Delivery Information</a></li>
+                            <li><a href="#">Privacy Policy</a></li>
+                        </ul>
+                        <ul>
+                            <li><a href="#">Who We Are</a></li>
+                            <li><a href="#">Our Services</a></li>
+                            <li><a href="#">Projects</a></li>
+                            <li><a href="./contact.html">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-4 col-md-12">
+                    <div class="footer__widget">
+                        <h6>Join Our Newsletter Now</h6>
+                        <p>Get E-mail updates about our latest shop and special offers.</p>
+                        <form action="#">
+                            <input type="text" placeholder="Enter your mail">
+                            <button type="submit" class="site-btn">Subscribe</button>
+                        </form>
+                        <div class="footer__widget__social">
+                            <a href="#"><i class="fa fa-facebook"></i></a>
+                            <a href="#"><i class="fa fa-instagram"></i></a>
+                            <a href="#"><i class="fa fa-twitter"></i></a>
+                            <a href="#"><i class="fa fa-pinterest"></i></a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-lg-12">
+                    <div class="footer__copyright">
+                        <div class="footer__copyright__text">
+                            <p>
+                                Copyright ©<script>document.write(new Date().getFullYear());</script> All rights reserved | SpringCommerce
+                                <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                                | This template is made with <i class="fa fa-heart" aria-hidden="true"></i> by <a href="https://colorlib.com" target="_blank">Colorlib</a>
+                                <!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
+                            </p>
+                        </div>
+                        <div class="footer__copyright__payment"><img src="img/payment-item.png" alt=""></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </footer>
+    <!-- Footer Section End -->
+
+    <!-- Js Plugins -->
+    <script src="js/jquery-3.3.1.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="js/main.js"></script>       <!-- JS gốc của template -->
+    <script src="js/app.js"></script>         <!-- File JS chung (chứa updateHeader, etc.) -->
+    <script src="js/order-confirmation.js"></script> <!-- File JS riêng cho trang này -->
+
+    </body>
+</html>

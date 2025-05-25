@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.example.springcommerce.entity.User; // Import User entity
 
 @Service
 public class AuthService {
@@ -56,11 +57,20 @@ public class AuthService {
 
     public JwtAuthResponse loginUser(LoginRequest loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword())
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                )
         );
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = tokenProvider.generateToken(authentication);
-        return new JwtAuthResponse(jwt, loginRequest.getUsername());
+
+        // Lấy User object để có userId
+        User user = userRepository.findByUsername(loginRequest.getUsername())
+                .orElseThrow(() -> new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "User not found after authentication. This should not happen."));
+
+        return new JwtAuthResponse(jwt, user.getId(), user.getUsername()); // Trả về cả userId
     }
 
     public String requestPasswordResetOtp(String email) {

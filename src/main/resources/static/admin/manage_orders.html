@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <!-- Basic Page Info -->
+    <meta charset="utf-8" />
+    <title>DeskApp - Bootstrap Admin Dashboard HTML Template</title>
+
+    <!-- Site favicon -->
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="vendors/images/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="vendors/images/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="vendors/images/favicon-16x16.png"
+    />
+
+    <!-- Mobile Specific Metas -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1"
+    />
+
+    <!-- Google Font -->
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <!-- CSS -->
+    <link rel="stylesheet" type="text/css" href="vendors/styles/core.css" />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="vendors/styles/icon-font.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="src/plugins/datatables/css/dataTables.bootstrap4.min.css"
+    />
+    <link
+      rel="stylesheet"
+      type="text/css"
+      href="src/plugins/datatables/css/responsive.bootstrap4.min.css"
+    />
+    <link rel="stylesheet" type="text/css" href="vendors/styles/style.css" />
+
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script
+      async
+      src="https://www.googletagmanager.com/gtag/js?id=UA-119386393-1"
+    ></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() {
+        dataLayer.push(arguments);
+      }
+      gtag("js", new Date());
+
+      gtag("config", "UA-119386393-1");
+    </script>
+  </head>
+  <body>
+    <div class="header">
+      <div class="header-left">
+        <div class="menu-icon dw dw-menu"></div>
+        <div
+          class="search-toggle-icon dw dw-search2"
+          data-toggle="header_search"
+        ></div>
+        <div class="header-search">
+          <form>
+            <div class="form-group mb-0">
+              <i class="dw dw-search2 search-icon"></i>
+              <input
+                type="text"
+                class="form-control search-input"
+                placeholder="Search Here"
+              />
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="header-right">
+        <div class="dashboard-setting user-notification">
+          <div class="dropdown">
+            <a
+              class="dropdown-toggle no-arrow"
+              href="javascript:;"
+              data-toggle="right-sidebar"
+            >
+            </a>
+          </div>
+        </div>
+        <div class="user-notification">
+          <div class="dropdown">
+            <a
+              class="dropdown-toggle no-arrow"
+              href="#"
+              role="button"
+              data-toggle="dropdown"
+            >
+              <i class="icon-copy dw dw-notification"></i>
+              <span class="badge notification-active"></span>
+            </a>          
+          </div>
+        </div>
+        <div class="user-info-dropdown">
+          <div class="dropdown">
+            <a
+              class="dropdown-toggle"
+              href="#"
+              role="button"
+              data-toggle="dropdown"
+            >
+              <span class="user-icon">
+                <img src="vendors/images/photo1.jpg" alt="" />
+              </span>
+              <span class="user-name">Ross C. Lopez</span>
+            </a>
+            <div
+              class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list"
+            >
+              <a class="dropdown-item" href="login.html"
+                ><i class="dw dw-logout"></i> Log Out</a
+              >
+            </div>
+          </div>
+        </div>
+        <div class="github-link">
+          <a href="https://github.com/dropways/deskapp" target="_blank"
+            ><img src="vendors/images/github.svg" alt=""
+          /></a>
+        </div>
+      </div>
+    </div>
+
+    <div class="left-side-bar">
+      <div class="brand-logo">
+        <a href="manage_products.html">
+          <img src="vendors/images/deskapp-logo.svg" alt="" class="dark-logo" />
+          <img
+            src="vendors/images/deskapp-logo-white.svg"
+            alt=""
+            class="light-logo"
+          />
+        </a>
+        <div class="close-sidebar" data-toggle="left-sidebar-close">
+          <i class="ion-close-round"></i>
+        </div>
+      </div>
+      <div class="menu-block customscroll">
+        <div class="sidebar-menu">
+          <ul id="accordion-menu">
+            <li>
+              <a href="manage_products.html" class="dropdown-toggle no-arrow">
+                <span class="micon dw dw-menu"></span
+                ><span class="mtext">Quản lý sản phẩm</span>
+              </a>
+            </li>
+            <li>
+              <a href="manage_orders.html" class="dropdown-toggle no-arrow">
+                <span class="micon dw dw-check"></span
+                ><span class="mtext">Quản lý đơn hàng</span>
+              </a>
+            </li>
+            <li>
+              <a href="manage_users.html" class="dropdown-toggle no-arrow">
+                <span class="micon dw dw-user1"></span
+                ><span class="mtext">Quản lý người dùng</span>
+              </a>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="mobile-menu-overlay"></div>
+
+    <div class="main-container">
+      <div class="pd-ltr-20 xs-pd-20-10">
+        <div class="min-height-200px">
+          <div class="page-header">
+            <div class="row">
+              <div class="col-md-6 col-sm-12">
+                <div class="title">
+                  <h4>DataTable</h4>
+                </div>
+                <nav aria-label="breadcrumb" role="navigation">
+                  <ol class="breadcrumb">
+                    <li class="breadcrumb-item">
+                      <a href="manage_products.html">Home</a>
+                    </li>
+                    <li class="breadcrumb-item active" aria-current="page">
+                      DataTable
+                    </li>
+                  </ol>
+                </nav>
+              </div>
+            </div>
+          </div>
+			<!-- Simple Datatable start -->
+			<!-- Simple Datatable start -->
+			<!-- Simple Datatable start -->
+			<div class="card-box mb-30">
+				<div class="pd-20">
+					<h4 class="text-blue h4">Data Table Orders</h4>
+				</div>
+				<div class="pb-20">
+					<table class="data-table table stripe hover nowrap">
+						<thead>
+							<tr>
+								<th class="table-plus datatable-nosort">Order ID</th>
+								<th>User</th>
+								<th>Total Amount</th>
+								<th>Shipping Address</th>
+								<th>Status</th>
+								<th>Created At</th>
+								<th class="datatable-nosort">Action</th>
+							</tr>
+						</thead>
+						<tbody>
+							<!-- Dữ liệu mẫu -->
+							<tr>
+								<td class="table-plus">1001</td>
+								<td>John Doe</td>
+								<td>1149.98</td>
+								<td>123 Main St, Springfield, IL 62701</td>
+								<td>
+									<select class="form-control" name="status">
+										<option value="PENDING" selected>PENDING</option>
+										<option value="CONFIRMED">CONFIRMED</option>
+										<option value="SHIPPED">SHIPPED</option>
+										<option value="DELIVERED">DELIVERED</option>
+										<option value="CANCELLED">CANCELLED</option>
+									</select>
+								</td>
+								<td>2025-05-24 14:30:00</td>
+								<td>
+									<div class="dropdown">
+										<a
+											class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
+											href="#"
+											role="button"
+											data-toggle="dropdown"
+										>
+											<i class="dw dw-more"></i>
+										</a>
+										<div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+											<a class="dropdown-item" href="#" data-toggle="modal" data-target="#orderModal1001"><i class="dw dw-eye"></i> View</a>
+											<a class="dropdown-item" href="edit-order.html"><i class="dw dw-edit2"></i> Edit</a>
+											<a
+												class="dropdown-item"
+												href="delete-order.html"
+												onclick="return confirm('Are you sure?')"
+											><i class="dw dw-delete-3"></i> Delete</a>
+										</div>
+									</div>
+								</td>
+							</tr>
+							
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!-- Simple Datatable End -->
+
+			<!-- Modal for Order 1001 -->
+			<div class="modal fade" id="orderModal1001" tabindex="-1" role="dialog" aria-labelledby="orderModalLabel1001" aria-hidden="true">
+				<div class="modal-dialog" role="document">
+					<div class="modal-content">
+						<div class="modal-header">
+							<h5 class="modal-title" id="orderModalLabel1001">Order Details - ID: 1001</h5>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">&times;</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<div class="order-details">
+								<p><strong>User:</strong> John Doe</p>
+								<p><strong>Total Amount:</strong> 1149.98</p>
+								<p><strong>Shipping Address:</strong> 123 Main St, Springfield, IL 62701</p>
+								<p><strong>Status:</strong> PENDING</p>
+								<p><strong>Created At:</strong> 2025-05-24 14:30:00</p>
+								<hr>
+								<h6>Items in Order</h6>
+								<table class="table">
+									<thead>
+										<tr>
+											<th>Product</th>
+											<th>Color</th>
+											<th>Quantity</th>
+											<th>Unit Price</th>
+										</tr>
+									</thead>
+									<tbody>
+										<tr>
+											<td>Celestron NexStar 8SE</td>
+											<td>Black</td>
+											<td>1</td>
+											<td>799.99</td>
+										</tr>
+										<tr>
+											<td>Sky-Watcher Explorer 150P</td>
+											<td>Black</td>
+											<td>1</td>
+											<td>349.99</td>
+										</tr>
+									</tbody>
+								</table>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+						</div>
+					</div>
+				</div>
+			</div>
+
+          <!-- Simple Datatable End -->
+          <!-- Simple Datatable End -->
+        </div>
+        <div class="footer-wrap pd-20 mb-20 card-box">
+          Telescop Admin Template By
+          <a href="https://github.com/Thinhskyduck" target="_blank"
+            >Than Quoc Thinh</a
+          >
+        </div>
+      </div>
+    </div>
+    <!-- js -->
+    <script src="vendors/scripts/core.js"></script>
+    <script src="vendors/scripts/script.min.js"></script>
+    <script src="vendors/scripts/process.js"></script>
+    <script src="vendors/scripts/layout-settings.js"></script>
+    <script src="src/plugins/datatables/js/jquery.dataTables.min.js"></script>
+    <script src="src/plugins/datatables/js/dataTables.bootstrap4.min.js"></script>
+    <script src="src/plugins/datatables/js/dataTables.responsive.min.js"></script>
+    <script src="src/plugins/datatables/js/responsive.bootstrap4.min.js"></script>
+    <!-- buttons for Export datatable -->
+    <script src="src/plugins/datatables/js/dataTables.buttons.min.js"></script>
+    <script src="src/plugins/datatables/js/buttons.bootstrap4.min.js"></script>
+    <script src="src/plugins/datatables/js/buttons.print.min.js"></script>
+    <script src="src/plugins/datatables/js/buttons.html5.min.js"></script>
+    <script src="src/plugins/datatables/js/buttons.flash.min.js"></script>
+    <script src="src/plugins/datatables/js/pdfmake.min.js"></script>
+    <script src="src/plugins/datatables/js/vfs_fonts.js"></script>
+    <!-- Datatable Setting js -->
+    <script src="vendors/scripts/datatable-setting.js"></script>
+  </body>
+</html>
