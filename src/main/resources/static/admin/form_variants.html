@@ -160,7 +160,6 @@
       </div>
     </div>
 
-    
 
     <div class="left-side-bar">
       <div class="brand-logo">
@@ -290,22 +289,23 @@
 
                 <!-- Image URL -->
                 <div class="form-group">
-                    <label for="variant-image">Variant Image</label>
+                    <label for="variant-image-file">Variant Image URL</label>
                     <div class="custom-file">
                         <input
                             type="file"
                             class="custom-file-input"
-                            id="variant-image"
-                            name="image_url"
+                            id="variant-image-file"
+                            name="image_file_input"
                             accept="image/*"
                         />
-                        <label class="custom-file-label" for="variant-image">
+                        <label class="custom-file-label"  for="variant-image-file">
                             Choose image file
                         </label>
                     </div>
                     <small class="form-text text-muted">
                         Upload an image file (jpg, png, etc.) for the variant.
                     </small>
+                    <input type="hidden" id="generated-image-url" name="imageUrl">
                 </div>
 
                 <!-- Nút điều khiển -->
@@ -329,5 +329,7 @@
     <script src="vendors/scripts/script.min.js"></script>
     <script src="vendors/scripts/process.js"></script>
     <script src="vendors/scripts/layout-settings.js"></script>
+    <script src="../js/admin/admin-common.js"></script>
+    <script src="../js/admin/form-variants.js"></script>
   </body>
 </html>

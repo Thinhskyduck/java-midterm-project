@@ -50,7 +50,13 @@ document.addEventListener('DOMContentLoaded', function () {
                             sessionStorage.removeItem('redirectAfterLogin');
                             window.location.href = redirectUrl;
                         } else {
-                            window.location.href = './index.html';
+                            // window.location.href = './index.html';
+                            // Kiểm tra nếu username là 'admin' thì chuyển sang trang admin
+                            if (responseData.username === 'admin') {
+                                window.location.href = './admin/manage_products.html';
+                            } else {
+                                window.location.href = './index.html';
+                            }
                         }
                     }, 1000); // Giảm thời gian chờ một chút
 

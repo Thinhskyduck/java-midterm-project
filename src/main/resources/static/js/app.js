@@ -237,31 +237,49 @@ async function displayCategoriesSlider() {
     }
 }
 
+// --- Featured Products ---
 async function displayFeaturedProducts(filterData = null) {
     const featuredProductsContainer = document.getElementById('featured-products-container');
     if (!featuredProductsContainer) return;
+
+    // Hiển thị loading
+    featuredProductsContainer.innerHTML = '<p class="col-12 text-center p-5">Loading products...</p>';
+    featuredProductsContainer.style.minHeight = '300px'; // Đặt tạm min-height khi loading
+
     try {
-        let apiUrl = `${API_BASE_URL}/api/products?page=0&size=8&sort=name,asc`;
+        let apiUrl = `${globalApp.API_BASE_URL}/api/products?page=0&size=8&sort=name,asc`; // Luôn lấy 8 sản phẩm
         if (filterData && filterData.categoryName && filterData.categoryName !== '*') {
             apiUrl += `&categoryName=${encodeURIComponent(filterData.categoryName)}`;
         }
-        const productPage = await fetchData(apiUrl);
+        console.log("Fetching featured products with URL:", apiUrl); // DEBUG - QUAN TRỌNG
+        // console.log("Fetching featured products with URL:", apiUrl); // DEBUG
+
+        // const productPage = await AppCore.fetchData(apiUrl);
+        const productPage = await globalApp.fetchData(apiUrl);
         const products = productPage.content || [];
-        featuredProductsContainer.innerHTML = '';
+        featuredProductsContainer.innerHTML = ''; // Xóa loading/sản phẩm cũ
+
         if (products.length === 0) {
-            featuredProductsContainer.innerHTML = '<p class="col-12 text-center">No products found.</p>'; return;
+            featuredProductsContainer.innerHTML = '<p class="col-12 text-center p-5">No products found matching your criteria.</p>';
+            featuredProductsContainer.style.minHeight = 'auto'; // Reset min-height
+            return;
         }
+
         products.forEach(product => {
-            const categorySlug = product.category ? product.category.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') : 'general';
+            // const categorySlug = product.category ? product.category.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '') : 'general';
+            // Không cần categorySlug cho filter bằng API nữa
             let rawPrice = 0;
             if (product.variants && product.variants.length > 0 && product.variants[0].price != null) {
                 rawPrice = product.variants[0].price;
             } else if (product.basePrice != null) { rawPrice = product.basePrice; }
-            const formattedPrice = formatPriceVND(rawPrice);
+
+            const formattedPrice = globalApp.formatPriceVND(rawPrice);
             const defaultVariantId = (product.variants && product.variants.length > 0) ? product.variants[0].id : null;
             const productImageUrl = product.imageUrl || 'img/featured/feature-default.jpg';
+
+            // Bỏ class "mix" và class category nếu không dùng MixItUp
             featuredProductsContainer.innerHTML += `
-                <div class="col-lg-3 col-md-4 col-sm-6 mix ${categorySlug}">
+                <div class="col-lg-3 col-md-4 col-sm-6"> 
                     <div class="featured__item">
                         <div class="featured__item__pic set-bg" data-setbg="${productImageUrl}">
                             <ul class="featured__item__pic__hover">
@@ -277,42 +295,57 @@ async function displayFeaturedProducts(filterData = null) {
                     </div>
                 </div>`;
         });
-        if (typeof reinitializeSetBg === "function") reinitializeSetBg();
-        const featuredControlsList = document.querySelector('.featured__controls ul'); // Lấy lại ở đây nếu cần
-        if (window.jQuery && typeof mixitup === 'function' && featuredControlsList && featuredControlsList.children.length > 1) {
-            const featuredProductsContainerEl = document.getElementById('featured-products-container'); // Lấy lại element nếu cần
-            if (featuredProductsContainerEl) { // Chỉ khởi tạo nếu container tồn tại
-                if (window.featuredMixer) { // Kiểm tra xem instance đã tồn tại chưa
-                    window.featuredMixer.destroy(); // Hủy instance cũ
-                    console.log("MixItUp instance destroyed before reinitialization."); // DEBUG
-                }
-                window.featuredMixer = mixitup(featuredProductsContainerEl); // Khởi tạo và lưu tham chiếu
-                console.log("MixItUp instance (re)initialized."); // DEBUG
-            }
+
+        globalApp.reinitializeSetBg(); // Gọi hàm từ AppCore
+        featuredProductsContainer.style.minHeight = 'auto'; // Reset min-height sau khi có sản phẩm
+
+        // KHÔNG KHỞI TẠO LẠI MIXITUP NỮA NẾU DÙNG API ĐỂ FILTER
+        // if (window.jQuery && typeof mixitup === 'function' && featuredControlsList && featuredControlsList.children.length > 1) {
+        //     const featuredProductsContainerEl = document.getElementById('featured-products-container');
+        //     if (featuredProductsContainerEl) {
+        //         if (window.featuredMixer) {
+        //             window.featuredMixer.destroy();
+        //         }
+        //         window.featuredMixer = mixitup(featuredProductsContainerEl);
+        //     }
+        // }
+
+    } catch (error) {
+        console.error("Error in displayFeaturedProducts:", error);
+        if(featuredProductsContainer) {
+            featuredProductsContainer.innerHTML = '<p class="col-12 text-center p-5">Failed to load products. Please try again.</p>';
+            featuredProductsContainer.style.minHeight = 'auto'; // Reset min-height
         }
-    } catch (error) { if(featuredProductsContainer) featuredProductsContainer.innerHTML = '<p>Failed to load products.</p>'; }
+    }
 }
 
 async function setupFeaturedProductFilters() {
     const featuredControlsList = document.querySelector('.featured__controls ul');
     if (!featuredControlsList) return;
     try {
-        const categories = await fetchData(`${API_BASE_URL}/api/categories`);
-        $(featuredControlsList).find('li:not([data-filter="*"])').remove();
+        const categories = await globalApp.fetchData(`${globalApp.API_BASE_URL}/api/categories`);
+        // Giữ lại nút "All" đã có trong HTML
+        $(featuredControlsList).find('li:not([data-filter="*"])').remove(); // Xóa các filter category tĩnh (nếu có)
+
         categories.forEach(category => {
-            const categorySlug = category.name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]+/g, '');
+            // Không cần data-filter dạng class nữa nếu không dùng MixItUp client-side
             const filterItem = $('<li></li>')
-                .attr('data-filter', `.${categorySlug}`)
+                // .attr('data-filter', `.${categorySlug}`) // Bỏ nếu không dùng MixItUp
                 .text(category.name)
                 .on('click', function() {
                     $(this).addClass('active').siblings().removeClass('active');
+                    // Gọi displayFeaturedProducts với categoryName để API lọc
+                    console.log("Category filter clicked:", category.name); // DEBUG
                     displayFeaturedProducts({ categoryName: category.name });
                 });
             $(featuredControlsList).append(filterItem);
         });
+
+        // Xử lý click cho "All"
         $(featuredControlsList).find('li[data-filter="*"]').on('click', function() {
             $(this).addClass('active').siblings().removeClass('active');
-            displayFeaturedProducts({ categoryName: '*' });
+            console.log("Category filter clicked: All"); // DEBUG
+            displayFeaturedProducts({ categoryName: '*' }); // Gửi categoryName là '*' hoặc null/undefined
         });
     } catch (error) { console.error("Error setting up product filters:", error); }
 }
@@ -321,10 +354,10 @@ async function setupFeaturedProductFilters() {
 async function displayLatestProducts() {
     // Lấy các hàm cần thiết từ AppCore (hoặc globalApp)
     // Điều này đảm bảo chúng ta đang dùng các phiên bản đã được expose và hoạt động đúng
-    const currentFetchData = (window.AppCore && typeof window.AppCore.fetchData === 'function') ? window.AppCore.fetchData : fetchData;
-    const currentFormatPriceVND = (window.AppCore && typeof window.AppCore.formatPriceVND === 'function') ? window.AppCore.formatPriceVND : formatPriceVND;
-    const currentReinitializeOwlCarousel = (window.AppCore && typeof window.AppCore.reinitializeOwlCarousel === 'function') ? window.AppCore.reinitializeOwlCarousel : reinitializeOwlCarousel;
-    const currentApiBaseUrl = (window.AppCore && window.AppCore.API_BASE_URL !== undefined) ? window.AppCore.API_BASE_URL : API_BASE_URL;
+    const currentFetchData = (window.globalApp && typeof window.globalApp.fetchData === 'function') ? window.globalApp.fetchData : fetchData;
+    const currentFormatPriceVND = (window.globalApp && typeof window.globalApp.formatPriceVND === 'function') ? window.globalApp.formatPriceVND : formatPriceVND;
+    const currentReinitializeOwlCarousel = (window.globalApp && typeof window.globalApp.reinitializeOwlCarousel === 'function') ? window.globalApp.reinitializeOwlCarousel : reinitializeOwlCarousel;
+    const currentApiBaseUrl = (window.globalApp && window.globalApp.API_BASE_URL !== undefined) ? window.globalApp.API_BASE_URL : API_BASE_URL;
 
 
     for (let i = 0; i < LATEST_PRODUCT_SECTIONS_CONFIG.length; i++) {

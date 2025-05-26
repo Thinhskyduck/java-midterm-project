@@ -15,6 +15,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.data.domain.Pageable; // Thêm import
 import org.springframework.data.web.PageableDefault;
@@ -90,4 +91,14 @@ public class OrderController {
         return ResponseEntity.ok(ordersPage);
     }
     */
+    // <<< ENDPOINT MỚI CHO ADMIN LẤY TẤT CẢ ĐƠN HÀNG >>>
+    // Cách 1: Dùng @PreAuthorize (cần @EnableMethodSecurity trong SecurityConfig)
+    @GetMapping("/all") // Ví dụ: GET /api/orders/all
+    @PreAuthorize("hasRole('ADMIN')") // Chỉ admin mới gọi được
+    public ResponseEntity<Page<OrderResponse>> getAllOrders(
+            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        Page<OrderResponse> ordersPage = orderService.getAllOrders(pageable);
+        return ResponseEntity.ok(ordersPage);
+    }
+
 }

@@ -19,4 +19,6 @@ public interface OrderService {
     // Page<OrderResponse> getOrdersByUserId(Long userId, Pageable pageable);
     Page<OrderResponse> getOrdersByUserIdPaginated(Long userId, Pageable pageable);
     OrderResponse updateOrderStatus(Long orderId, String newStatus);
+    // <<< PHƯƠNG THỨC MỚI CHO ADMIN >>>
+    Page<OrderResponse> getAllOrders(Pageable pageable);
 }

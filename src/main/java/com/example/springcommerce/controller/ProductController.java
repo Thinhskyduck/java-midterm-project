@@ -41,6 +41,7 @@ public class ProductController {
     @GetMapping
     public ResponseEntity<Page<ProductResponse>> getFilteredProducts(
             @RequestParam(required = false) Long categoryId, // << Đổi sang Long
+            @RequestParam(required = false) String categoryName,
             @RequestParam(required = false) String brandName,
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
@@ -49,7 +50,7 @@ public class ProductController {
             @PageableDefault(size = 9, sort = "id", direction = Sort.Direction.DESC) Pageable pageable
     ) {
         Page<Product> productPage = productService.findFilteredProducts(
-                categoryId, brandName, minPrice, maxPrice, name, color, pageable
+                categoryId,categoryName, brandName, minPrice, maxPrice, name, color, pageable
         );
         Page<ProductResponse> productResponsePage = productPage.map(this::mapToResponse);
         System.out.println("Received Pageable in Controller - Sort: " + pageable.getSort());

@@ -10,9 +10,11 @@ import java.util.List;
 @Data
 @Builder
 public class OrderResponse {
-    private Long id; // Changed from Integer to Long
-    private Long userId; // Changed from Integer to Long
-    private String username;
+    private Long id;
+    private Long userId;
+    private String username; // Giữ lại username nếu cần
+    private String userFullName; // <<< THÊM MỚI
+    private String userEmail;    // <<< THÊM MỚI
     private BigDecimal totalAmount;
     private String shippingAddress;
     private String status;

@@ -16,7 +16,7 @@ import java.util.List;
 public class ProductSpecification {
 
     public static Specification<Product> filterBy(
-            Long categoryId,       // <<< THAY ĐỔI: Nhận Long categoryId
+            Category category,     // <<< THAY ĐỔI: Nhận Long categoryId
             Brand brand,           // <<< THAY ĐỔI: Nhận Brand object
             BigDecimal minPrice,
             BigDecimal maxPrice,
@@ -30,8 +30,8 @@ public class ProductSpecification {
             }
 
             // Lọc theo categoryId trực tiếp
-            if (categoryId != null) {
-                predicates.add(criteriaBuilder.equal(root.get("category").get("id"), categoryId));
+            if (category != null) { // Lọc theo Category object
+                predicates.add(criteriaBuilder.equal(root.get("category"), category));
             }
 
             // Lọc theo Brand object

@@ -13,7 +13,8 @@ public interface ProductService {
 
     // Thay thế getAllProducts và filterProducts bằng phương thức này
     Page<Product> findFilteredProducts(
-            Long categoryId, // << Đổi sang Long
+            Long categoryId,
+            String categoryName,
             String brandName,
             BigDecimal minPrice,
             BigDecimal maxPrice,

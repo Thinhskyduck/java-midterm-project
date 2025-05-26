@@ -23,7 +23,25 @@
         <link rel="stylesheet" href="css/style.css" type="text/css">
         <!-- Popper.js (bắt buộc cho tooltip, dropdown...) -->
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <style>
+            /* Trong file css/style.css hoặc file custom */
 
+            .featured.spad {
+                /* Đảm bảo section này có padding và không bị ảnh hưởng bởi float con */
+                overflow: hidden; /* Một cách đơn giản để chứa float */
+            }
+
+            .featured .featured__filter {
+                /* Class này là row, bootstrap đã có clearfix rồi, nhưng có thể thêm để chắc chắn */
+                /* Hoặc đảm bảo các .col-lg-3 bên trong nó không gây vỡ layout */
+                /* min-height: 400px; */ /* Đặt chiều cao tối thiểu nếu cần, nhưng không phải là giải pháp tốt nhất */
+            }
+
+            /* Đảm bảo các section có khoảng cách phù hợp */
+            .latest-product.spad {
+                padding-top: 50px; /* Hoặc giá trị phù hợp, tăng lên nếu cần */
+            }
+        </style>
     </head>
 
     <body>

@@ -146,9 +146,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     productGridContainer.innerHTML = '<p class="col-12 text-center p-5">No products found matching your criteria.</p>';
                 } else {
                     products.forEach(product => {
-                        const price = (product.variants && product.variants.length > 0 && product.variants[0].price != null)
-                            ? product.variants[0].price
-                            : (product.basePrice != null ? product.basePrice : 0);
+                        let price = product.basePrice != null ? product.basePrice : 0;
                         const formattedPrice = formatPriceVND(price);
                         const defaultVariantId = (product.variants && product.variants.length > 0) ? product.variants[0].id : null;
                         const imageUrl = product.imageUrl || 'img/product/product-default.jpg';

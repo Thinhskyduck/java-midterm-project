@@ -80,12 +80,16 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/register.html"),
                                 new AntPathRequestMatcher("/forgot-password.html"),
                                 new AntPathRequestMatcher("/auth/reset-password-page/**"),
+                                // Thư mục tĩnh chung
                                 new AntPathRequestMatcher("/css/**"),
-                                new AntPathRequestMatcher("/js/**"),
+                                new AntPathRequestMatcher("/js/**"), // Bao gồm /js/admin/**
                                 new AntPathRequestMatcher("/img/**"),
                                 new AntPathRequestMatcher("/fonts/**"),
                                 new AntPathRequestMatcher("/sass/**"),
-                                new AntPathRequestMatcher("/admin/manage_products.html")
+                                new AntPathRequestMatcher("/favicon.ico"),
+                                new AntPathRequestMatcher("/admin/**.html"),
+                                new AntPathRequestMatcher("/admin/vendors/**"),
+                                new AntPathRequestMatcher("/admin/src/**")
                         ).permitAll()
                         // Swagger UI and API docs
                         .requestMatchers(
@@ -115,6 +119,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/products").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.PUT, "/api/products/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/products/**").hasRole("ADMIN")
+                        // Thêm các API khác cho admin nếu có (ví dụ: quản lý user, order status)
+                        .requestMatchers(new AntPathRequestMatcher("/api/admin/users/**")).hasRole("ADMIN")
+                        .requestMatchers(new AntPathRequestMatcher("/api/admin/orders/**")).hasRole("ADMIN")
+                        .requestMatchers(new AntPathRequestMatcher("/api/orders/all")).hasRole("ADMIN")
+                        .requestMatchers(new AntPathRequestMatcher("/api/variants/**")).hasRole("ADMIN") // << CHO PHÉP TẤT CẢ METHOD cho /api/variants cho ADMIN
                         .anyRequest().authenticated() // Tất cả các request khác yêu cầu xác thực
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);

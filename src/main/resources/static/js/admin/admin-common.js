@@ -73,7 +73,9 @@ window.AdminApp = {
     fetchData: fetchAdminAPI,
     formatPrice: formatAdminPriceVND,
     isLoggedIn: isAdminLoggedIn,
+    getAuthToken: getAdminAuthToken,
     logoutUser: adminLogout
+
     // showNotification: showAdminNotification
 };
 

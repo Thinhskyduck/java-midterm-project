@@ -192,7 +192,7 @@
                 <div class="row">
                 <div class="col-md-6 col-sm-12">
                     <div class="title">
-                    <h4>DataTable</h4>
+                    <h4 id="variants-page-title">Product Variants for [Product Name]</h4>
                     </div>
                     <nav aria-label="breadcrumb" role="navigation">
                     <ol class="breadcrumb">
@@ -203,7 +203,7 @@
                         <a href="manage_products.html">Product</a>
                         </li>
                         <li class="breadcrumb-item active" aria-current="page">
-                        Variants
+                            Manage Variants
                         </li>
                     </ol>
                     </nav>
@@ -213,46 +213,23 @@
             <!-- Simple Datatable start -->
             <div class="card-box mb-30">
                 <div class="pd-20 d-flex justify-content-between align-items-center">
-                    <h4 class="text-blue h4">Product Variants</h4>
-                    <a href="form_variant.html" class="btn btn-primary">Add Variant</a>
+                        <h4 class="text-blue h4" id="variants-table-title">Variants List</h4>
+                    <a href="form_variant.html" id="add-variant-btn" class="btn btn-primary"> <i class="fa fa-plus"></i> Add Variant</a>
                 </div>
                 <div class="pb-20">
-                    <table class="data-table table stripe hover nowrap">
+                    <table class="data-table table stripe hover nowrap" id="variants-table">
                         <thead>
                             <tr>
-                                <th class="table-plus datatable-nosort">Color</th>
+                                <th class="table-plus">ID</th>
+                                <th>Color</th>
                                 <th>Price</th>
                                 <th>Stock Qty</th>
-                                <th>Image URL</th>
+<!--                                <th>Image</th>-->
                                 <th class="datatable-nosort">Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <!-- Dữ liệu mẫu -->
-                            <tr>
-                                <td class="table-plus">Black</td>
-                                <td>799.99</td>
-                                <td>5</td>
-                                <td><a href="images/black-nexstar.jpg" target="_blank">black-nexstar.jpg</a></td>
-                                <td>
-                                    <div class="dropdown">
-                                        <a
-                                            class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle"
-                                            href="#"
-                                            role="button"
-                                            data-toggle="dropdown"
-                                        >
-                                            <i class="dw dw-more"></i>
-                                        </a>
-                                        <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-                                            <a class="dropdown-item" href="form_variants.html"><i class="dw dw-edit2"></i> Edit</a>
-                                            <a class="dropdown-item" href="delete-variant.html" onclick="return confirm('Are you sure?')" >
-                                              <i class="dw dw-delete-3"> </i> Delete
-                                            </a>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>                            
+                        <tbody id="variants-table-body">
+                            <!-- JS sẽ điền dữ liệu vào đây -->
                         </tbody>
                     </table>
                 </div>
@@ -268,7 +245,7 @@
       </div>
     </div>
     <!-- js -->
-      <script>
+    <script>
         function limitText(elementId, maxLength) {
             const element = document.getElementById(elementId);
             if (element && element.textContent.length > maxLength) {
@@ -295,6 +272,8 @@
     <script src="src/plugins/datatables/js/pdfmake.min.js"></script>
     <script src="src/plugins/datatables/js/vfs_fonts.js"></script>
     <!-- Datatable Setting js -->
-    <script src="vendors/scripts/datatable-setting.js"></script>
+<!--    <script src="vendors/scripts/datatable-setting.js"></script>-->
+    <script src="../js/admin/admin-common.js"></script>
+    <script src="../js/admin/view-variants.js"></script>
   </body>
 </html>

@@ -1,115 +1,164 @@
+// src/main/resources/static/js/admin/manage-products.js
 document.addEventListener('DOMContentLoaded', function () {
     if (typeof window.AdminApp === 'undefined' || typeof window.AdminApp.fetchData !== 'function') {
         console.error("AdminApp or essential functions are not available. Ensure admin-common.js is loaded first.");
-        alert("Error: Admin core script not loaded.");
+        // alert("Error: Admin core script not loaded."); // Có thể bỏ alert nếu console log đủ
+        const productTableBodyError = document.getElementById('products-table-body');
+        if(productTableBodyError) productTableBodyError.innerHTML = '<tr><td colspan="7" class="text-center text-danger">Critical Error: Core admin scripts not loaded.</td></tr>';
         return;
     }
 
-    const { API_BASE_URL, fetchData, formatPrice, isLoggedIn } = window.AdminApp; // Sử dụng hàm từ admin-common.js
-
-    const productsTable = $('#products-table'); // Sử dụng jQuery selector cho DataTables
-    let dataTableInstance;
+    const { API_BASE_URL, fetchData, formatPrice, isLoggedIn } = window.AdminApp;
+    const productsTableJQ = $('#products-table');
+    let dataTableInstanceAPI; // Biến để lưu trữ instance của DataTable
 
     async function loadProducts() {
-        if (!isLoggedIn()) { // Kiểm tra đăng nhập của admin
-            window.location.href = '../login.html'; // Chuyển về trang login (của user hoặc admin riêng)
+        if (!isLoggedIn()) {
+            window.location.href = '../login.html';
+            return;
+        }
+        if (!productsTableJQ.length) {
+            console.error("Products table element #products-table not found!");
+            return;
+        }
+        if (!productsTableJQ.length) {
+            console.error("Products table element #products-table not found!");
             return;
         }
 
+        // Hiển thị loading message trong tbody (nếu tbody tồn tại)
+        let tbody = productsTableJQ.find('tbody');
+        if (!tbody.length) {
+            productsTableJQ.append('<tbody></tbody>'); // Tạo tbody nếu chưa có
+            tbody = productsTableJQ.find('tbody');
+        }
+        tbody.html('<tr><td colspan="7" class="text-center">Loading products...</td></tr>');
+
+        // Không cần hiển thị loading message thủ công vào tbody nữa nếu dùng DataTables,
+        // DataTables có tùy chọn "language.loadingRecords" hoặc "language.processing"
+
         try {
-            // API này cần hỗ trợ phân trang phía server nếu dùng DataTables server-side processing
-            // Hiện tại, chúng ta sẽ load tất cả và để DataTables xử lý client-side
-            // Hoặc bạn có thể dùng API phân trang như trang shop-grid
-            const productPage = await fetchData('/api/products?page=0&size=100&sort=id,desc'); // Lấy 100 sản phẩm mới nhất
+            const productPage = await fetchData('/api/products?page=0&size=100&sort=id,desc');
             const products = productPage.content || [];
 
-            if ($.fn.DataTable.isDataTable(productsTable)) {
-                dataTableInstance.clear().destroy();
+            // Hủy DataTable cũ nếu tồn tại
+            if ($.fn.DataTable.isDataTable(productsTableJQ)) {
+                console.log("DataTable is initialized. Destroying old instance.");
+                productsTableJQ.DataTable().destroy();
+                // Quan trọng: Sau khi destroy, DataTables có thể đã xóa thead và tbody nó tự tạo.
+                // Chúng ta cần đảm bảo cấu trúc bảng gốc còn đó hoặc được tạo lại.
+                productsTableJQ.find('tbody').empty(); // Xóa nội dung tbody cũ
+                productsTableJQ.find('thead').empty(); // Xóa nội dung thead cũ (nếu có)
             }
 
-            dataTableInstance = productsTable.DataTable({
+            // --- ĐẢM BẢO THEAD TỒN TẠI VÀ ĐÚNG CẤU TRÚC ---
+            let thead = productsTableJQ.find('thead');
+            if (thead.length === 0) {
+                console.log("Re-creating thead for DataTable");
+                thead = $('<thead>').appendTo(productsTableJQ);
+            }
+            // Tạo lại các th nếu thead trống hoặc để đảm bảo đúng số lượng
+            thead.html(`
+            <tr>
+                <th class="table-plus">ID</th>
+                <th>Name</th>
+                <th>Base Price</th>
+                <th>Category</th>
+                <th>Brand</th>
+<!--                <th>Image</th>-->
+                <th class="datatable-nosort">Action</th>
+            </tr>
+        `);
+            // --- KẾT THÚC ĐẢM BẢO THEAD ---
+
+            // Đảm bảo tbody tồn tại
+            if (productsTableJQ.find('tbody').length === 0) {
+                productsTableJQ.append('<tbody></tbody>');
+            }
+
+
+            console.log("Initializing DataTable instance with products:", products.length);
+            dataTableInstanceAPI = productsTableJQ.DataTable({
+                // destroy: true, // Có thể không cần nữa nếu chúng ta tự destroy và quản lý thead
                 data: products,
                 responsive: true,
+                autoWidth: false,
                 columns: [
-                    { data: 'id', className: 'table-plus' },
-                    { data: 'name' },
+                    { data: 'id', className: 'table-plus' ,width: "5%" },
+                    { data: 'name', width: "30%" },
                     {
                         data: 'basePrice',
+                        width: "15%",
                         render: function (data, type, row) {
-                            // Giá có thể từ basePrice hoặc variant đầu tiên nếu basePrice null
                             let priceToFormat = data;
                             if (priceToFormat === null && row.variants && row.variants.length > 0 && row.variants[0].price !== null) {
                                 priceToFormat = row.variants[0].price;
                             }
-                            return formatPrice(priceToFormat);
+                            return window.AdminApp.formatPrice(priceToFormat);
                         }
                     },
-                    { data: 'category.name', defaultContent: "N/A" }, // category là object {id, name}
-                    { data: 'brand.name', defaultContent: "N/A" },   // brand là object {id, name}
+                    { data: 'category.name', defaultContent: "N/A" ,width: "15%" },
+                    { data: 'brand.name', defaultContent: "N/A", width: "15%"  },
+                    // {
+                    //     data: 'imageUrl',
+                    //     render: function (data, type, row) {
+                    //         const imgUrl = data || '../img/product/product-default.jpg';
+                    //         return `<img src="${imgUrl}" alt="${row.name || 'Product'}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 3px;">`;
+                    //     }
+                    // },
                     {
-                        data: 'imageUrl',
-                        render: function (data, type, row) {
-                            const imgUrl = data || '../img/product/product-default.jpg'; // Placeholder nếu không có ảnh
-                            return `<img src="${imgUrl}" alt="${row.name || 'Product'}" style="width: 60px; height: 60px; object-fit: cover;">`;
-                        }
-                    },
-                    {
-                        data: 'id', // Dùng ID cho các action
+                        data: 'id',
                         orderable: false,
-                        className: 'datatable-nosort',
+                        className: 'datatable-nosort text-center',
                         render: function (data, type, row) {
                             return `
-                                <div class="dropdown">
-                                    <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown">
-                                        <i class="dw dw-more"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
-                                        <a class="dropdown-item edit-product-btn" href="form_product.html?id=${data}"><i class="dw dw-edit2"></i> Edit</a>
-                                        <a class="dropdown-item view-variants-btn" href="view_variants.html?productId=${data}&productName=${encodeURIComponent(row.name)}"><i class="dw dw-list3"></i> View Variants</a>
-                                        <a class="dropdown-item delete-product-btn" href="#" data-id="${data}"><i class="dw dw-delete-3"></i> Delete</a>
-                                    </div>
-                                </div>`;
+                            <div class="dropdown">
+                                <a class="btn btn-link font-24 p-0 line-height-1 no-arrow dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                    <i class="dw dw-more"></i>
+                                </a>
+                                <div class="dropdown-menu dropdown-menu-right dropdown-menu-icon-list">
+                                    <a class="dropdown-item edit-product-btn" href="form_product.html?id=${data}"><i class="dw dw-edit2"></i> Edit</a>
+                                    <a class="dropdown-item view-variants-btn" href="view_variants.html?productId=${data}&productName=${encodeURIComponent(row.name)}"><i class="dw dw-list3"></i> Variants</a>
+                                    <a class="dropdown-item delete-product-btn" href="#" data-id="${data}"><i class="dw dw-delete-3"></i> Delete</a>
+                                </div>
+                            </div>`;
                         }
                     }
                 ],
-                // Các tùy chọn khác của DataTables nếu cần
-                // "scrollCollapse": true,
-                // "autoWidth": false,
-                // "responsive": true,
+                // Các options khác
             });
+            console.log("DataTable initialized.");
 
         } catch (error) {
-            console.error("Failed to load products for admin:", error);
-            productsTable.find('tbody').html('<tr><td colspan="7" class="text-center">Error loading products.</td></tr>');
+            console.error("Failed to load products for admin (outer catch):", error.message);
+            const tableBodyError = productsTableJQ.find('tbody');
+            if (tableBodyError.length) {
+                tableBodyError.html('<tr><td colspan="7" class="text-center text-danger">Error loading products.</td></tr>');
+            }
         }
     }
 
-    // Xử lý nút xóa sản phẩm
-    productsTable.on('click', '.delete-product-btn', async function () {
+    // Xử lý nút xóa sản phẩm (vẫn dùng jQuery event delegation)
+    productsTableJQ.on('click', '.delete-product-btn', async function (e) {
+        e.preventDefault();
         const productId = $(this).data('id');
-        if (confirm(`Are you sure you want to delete product with ID: ${productId}? This action cannot be undone.`)) {
+        if (confirm(`Are you sure you want to delete product with ID: ${productId}?`)) {
             try {
                 await fetchData(`/api/products/${productId}`, { method: 'DELETE' });
-                // alert('Product deleted successfully!'); // Hoặc dùng notification đẹp hơn
-                // Reload DataTables
-                loadProducts();
+                // alert('Product deleted successfully!');
+                loadProducts(); // Load lại bảng (DataTables sẽ được khởi tạo lại)
             } catch (error) {
                 alert(`Error deleting product: ${error.message}`);
             }
         }
     });
 
-
     // --- Initialization ---
-    function initManageProductsPage() {
-        // Kiểm tra đăng nhập admin và vai trò (sẽ cần API /users/me để lấy role)
-        // Tạm thời, chỉ kiểm tra đăng nhập chung
+    async function initManageProductsPage() {
         if (!isLoggedIn()) {
             window.location.href = '../login.html';
             return;
         }
-        // TODO: Gọi API /api/users/me để kiểm tra role === 'ADMIN'
-        // Nếu không phải admin, chuyển hướng về trang user hoặc báo lỗi
 
         loadProducts();
     }

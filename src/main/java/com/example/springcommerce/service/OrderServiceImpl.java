@@ -175,6 +175,7 @@ public class OrderServiceImpl implements OrderService {
     private OrderResponse mapOrderToOrderResponse(Order order) {
         // Ensure lazy-loaded collections are accessible if not already fetched
         // (being within @Transactional helps here)
+        User user = order.getUser();
         List<OrderItemResponse> itemResponses = order.getOrderItems().stream()
                 .map(oi -> OrderItemResponse.builder()
                         .id(oi.getId()) // OrderItem ID
@@ -189,8 +190,10 @@ public class OrderServiceImpl implements OrderService {
 
         return OrderResponse.builder()
                 .id(order.getId())
-                .userId(order.getUser().getId())
-                .username(order.getUser().getUsername())
+                .userId(user != null ? user.getId() : null) // Kiểm tra user null cho an toàn
+                .username(user != null ? user.getUsername() : "N/A")
+                .userFullName(user != null ? user.getFullName() : "N/A") // <<< LẤY FULLNAME
+                .userEmail(user != null ? user.getEmail() : "N/A")       // <<< LẤY EMAIL
                 .totalAmount(order.getTotalAmount())
                 .shippingAddress(order.getShippingAddress())
                 .status(order.getStatus())
@@ -198,5 +201,20 @@ public class OrderServiceImpl implements OrderService {
                 .updatedAt(order.getUpdatedAt())
                 .items(itemResponses)
                 .build();
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public Page<OrderResponse> getAllOrders(Pageable pageable) {
+        // Không cần kiểm tra user cụ thể vì đây là admin lấy tất cả
+        Page<Order> ordersPage = orderRepository.findAll(pageable); // findAll của JpaRepository đã hỗ trợ Pageable
+
+        // Khởi tạo các collection lazy-loaded trước khi map (nếu mapOrderToOrderResponse cần)
+        // Mặc dù @Transactional(readOnly = true) thường là đủ, nhưng để chắc chắn
+        // đối với nhiều entity, bạn có thể muốn khởi tạo tường minh.
+        // Hoặc đảm bảo mapOrderToOrderResponse xử lý tốt lazy loading trong transaction.
+        // Với cấu trúc mapOrderToOrderResponse hiện tại, nó truy cập order.getOrderItems()
+        // và order.getUser(), nên transaction là đủ.
+
+        return ordersPage.map(this::mapOrderToOrderResponse);
     }
 }

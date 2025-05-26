@@ -35,6 +35,7 @@ public class ProductServiceImpl implements ProductService {
     @Transactional(readOnly = true)
     public Page<Product> findFilteredProducts(
             Long categoryId, // << Đổi sang Long categoryId
+            String categoryName,
             String brandName,
             BigDecimal minPrice,
             BigDecimal maxPrice,
@@ -42,6 +43,14 @@ public class ProductServiceImpl implements ProductService {
             String color,
             Pageable pageable) {
 
+        Category categoryEntity = null;
+        if (categoryId != null) { // Ưu tiên categoryId nếu có
+            categoryEntity = categoryRepository.findById(categoryId).orElse(null);
+        } else if (categoryName != null && !categoryName.isEmpty() && !categoryName.equals("*")) {
+            categoryEntity = categoryRepository.findByNameIgnoreCase(categoryName).orElse(null);
+            // Nếu categoryName được gửi nhưng không tìm thấy, bạn có thể muốn trả về trang rỗng
+            // if (categoryEntity == null) return Page.empty(pageable);
+        }
         Brand brand = null;
         if (brandName != null && !brandName.isEmpty()) {
             brand = brandRepository.findByNameIgnoreCase(brandName).orElse(null);
@@ -50,7 +59,7 @@ public class ProductServiceImpl implements ProductService {
         }
 
         Specification<Product> spec = ProductSpecification.filterBy(
-                categoryId, // Truyền categoryId
+                categoryEntity, // Truyền categoryId
                 brand,      // Truyền Brand object (hoặc brandId nếu spec xử lý id)
                 minPrice,
                 maxPrice,
