@@ -79,6 +79,7 @@ public class SecurityConfig {
                                 new AntPathRequestMatcher("/profile.html"),
                                 new AntPathRequestMatcher("/register.html"),
                                 new AntPathRequestMatcher("/forgot-password.html"),
+                                new AntPathRequestMatcher("/reset-password.html"),
                                 new AntPathRequestMatcher("/auth/reset-password-page/**"),
                                 // Thư mục tĩnh chung
                                 new AntPathRequestMatcher("/css/**"),
@@ -101,6 +102,7 @@ public class SecurityConfig {
                         ).permitAll()
                         // API AUTH
                         .requestMatchers(new AntPathRequestMatcher("/api/auth/**")).permitAll()
+                        .requestMatchers(new AntPathRequestMatcher("/api/auth/verify-otp-reset-password")).permitAll()
                         // PUBLIC APIs (Explicitly state HttpMethod.GET for public read APIs)
                         .requestMatchers(new AntPathRequestMatcher("/api/products", HttpMethod.GET.toString())).permitAll()
                         .requestMatchers(new AntPathRequestMatcher("/api/products/*", HttpMethod.GET.toString())).permitAll() // Cho GET /api/products/{id}

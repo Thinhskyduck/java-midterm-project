@@ -70,7 +70,7 @@ public class AuthService {
         User user = userRepository.findByUsername(loginRequest.getUsername())
                 .orElseThrow(() -> new AppException(HttpStatus.INTERNAL_SERVER_ERROR, "User not found after authentication. This should not happen."));
 
-        return new JwtAuthResponse(jwt, user.getId(), user.getUsername()); // Trả về cả userId
+        return new JwtAuthResponse(jwt, user.getId(), user.getUsername(), user.getFullName());
     }
 
     public String requestPasswordResetOtp(String email) {

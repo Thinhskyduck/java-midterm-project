@@ -242,37 +242,21 @@ document.addEventListener('DOMContentLoaded', function () {
     } else {
         console.error("Element with ID 'sort-by-select' NOT FOUND by jQuery!");
     }
-    if (sortBySelect) {
-        console.log("Attaching change listener to sortBySelect"); //DEBUG
-        sortBySelect.addEventListener('change', function(e) {
-            console.log("Sort select CHANGED. New value:", e.target.value); // DEBUG
-            if (e.target.value === "default" || e.target.value === "") {
-                currentFilters.sort = null; // Hoặc giá trị mặc định nếu backend không tự xử lý null
-                // Ví dụ: currentFilters.sort = "id,desc"; (nếu muốn quay về mặc định)
-            } else {
-                currentFilters.sort = e.target.value; // Ví dụ: "name,asc", "basePrice,desc"
-            }
-            console.log("currentFilters.sort set to:", currentFilters.sort); // DEBUG
-            applyFiltersAndFetchProducts();
-        });
-        if ($.fn.niceSelect) {
-            console.log("Initializing NiceSelect on #sort-by-select"); // DEBUG
-            $(sortBySelect).niceSelect();
-            // NiceSelect có thể cần bạn lắng nghe sự kiện của nó thay vì select gốc
-            // Hoặc nó sẽ tự động trigger 'change' trên select gốc.
-            // Nếu event 'change' gốc không chạy sau khi NiceSelect init, thử:
-            // $(sortBySelect).on('change', function(event) { // Lắng nghe event do NiceSelect trigger
-            //     const originalSelectValue = $(this).val(); // jQuery lấy value của select gốc
-            //     console.log("Sort select (NiceSelect triggered) CHANGED. New value:", originalSelectValue);
-            //     if (originalSelectValue === "default" || originalSelectValue === "") {
-            //         currentFilters.sort = null;
-            //     } else {
-            //         currentFilters.sort = originalSelectValue;
-            //     }
-            //     applyFiltersAndFetchProducts();
-            // });
-        }
-    }
+    // if (sortBySelect) {
+    //     console.log("Attaching change listener to sortBySelect"); //DEBUG
+    //     sortBySelect.addEventListener('change', function(e) {
+    //         console.log("Sort select CHANGED. New value:", e.target.value); // DEBUG
+    //         if (e.target.value === "default" || e.target.value === "") {
+    //             currentFilters.sort = null; // Hoặc giá trị mặc định nếu backend không tự xử lý null
+    //             // Ví dụ: currentFilters.sort = "id,desc"; (nếu muốn quay về mặc định)
+    //         } else {
+    //             currentFilters.sort = e.target.value; // Ví dụ: "name,asc", "basePrice,desc"
+    //         }
+    //         console.log("currentFilters.sort set to:", currentFilters.sort); // DEBUG
+    //         applyFiltersAndFetchProducts();
+    //     });
+    //
+    // }
 
     if (filterPriceBtn) {
         filterPriceBtn.addEventListener('click', function() {
@@ -292,54 +276,94 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
+    // Trong js/shop-grid.js
     if (clearFiltersBtn) {
         clearFiltersBtn.addEventListener('click', function() {
+            console.log("Clear All Filters button clicked!"); // DEBUG
+
             // Reset state
             const currentQuery = new URLSearchParams(window.location.search).get('query');
-            currentFilters.sort = 'default'; // Hoặc null
-            if (sortBySelectJQ.length) {
-                sortBySelectJQ.val('default'); // Đặt lại giá trị của select gốc
-                if ($.fn.niceSelect) {
-                    sortBySelectJQ.niceSelect('update'); // Yêu cầu NiceSelect cập nhật UI của nó
-                }
-            }
+            currentFilters = { // TẠO OBJECT MỚI cho currentFilters
+                categoryId: null,
+                brandName: null,
+                color: null,
+                minPrice: null, // Sẽ được reset ở dưới
+                maxPrice: null, // Sẽ được reset ở dưới
+                productName: currentQuery, // Giữ lại query search nếu có từ URL
+                page: 0,
+                size: 9, // Hoặc giá trị size mặc định của bạn
+                sort: 'default' // Hoặc null nếu API hiểu null là không sort
+            };
+            console.log("currentFilters after reset (before price):", JSON.parse(JSON.stringify(currentFilters))); // DEBUG
+
             // Reset UI (HTML elements)
+            // Category
             if (filterCategoriesList) {
                 filterCategoriesList.querySelectorAll('a.filter-category').forEach(a => a.classList.remove('active'));
-                filterCategoriesList.querySelector('a[data-category-id=""]').classList.add('active');
+                const allCategoriesLink = filterCategoriesList.querySelector('a[data-category-id=""]');
+                if (allCategoriesLink) allCategoriesLink.classList.add('active');
+                else console.warn("Could not find 'All Categories' link to set active.");
             }
+
+            // Brand
             if (filterBrandsList) {
                 filterBrandsList.querySelectorAll('input[type="radio"]').forEach(r => { r.checked = (r.value === ""); });
                 filterBrandsList.querySelectorAll('label').forEach(lbl => lbl.classList.remove('active'));
                 const allBrandsRadio = filterBrandsList.querySelector('input[value=""]');
-                if (allBrandsRadio) allBrandsRadio.parentElement.classList.add('active');
+                if (allBrandsRadio && allBrandsRadio.parentElement.tagName === 'LABEL') {
+                    allBrandsRadio.parentElement.classList.add('active');
+                } else if (allBrandsRadio) {
+                    // Nếu cấu trúc khác, tìm label cha gần nhất
+                    $(allBrandsRadio).closest('label').addClass('active');
+                }
             }
+
+            // Color
             if (filterColorsList) {
-                filterColorsList.querySelectorAll('input[type="radio"]').forEach(r => { r.checked = (r.value === ""); });
+                filterColorsList.querySelectorAll('input[name="filter_color_shop_grid_static"]').forEach(r => { // Sử dụng đúng name
+                    r.checked = (r.value === "");
+                });
                 filterColorsList.querySelectorAll('.sidebar__item__color').forEach(div => div.classList.remove('active'));
-                const allColorsRadio = filterColorsList.querySelector('#color-all-filter');
-                if (allColorsRadio) allColorsRadio.closest('.sidebar__item__color').classList.add('active');
+                const allColorsRadio = filterColorsList.querySelector('#color-all-filter'); // Giả sử ID của radio "All Colors"
+                if (allColorsRadio) {
+                    allColorsRadio.closest('.sidebar__item__color').classList.add('active');
+                }
             }
 
-            if (sortBySelect) sortBySelect.value = 'default';
-            if ($.fn.niceSelect) { $('#sort-by-select').niceSelect('update'); } // Cập nhật NiceSelect
+            // Sort
+            if (sortBySelectJQ.length) { // sortBySelectJQ đã được khai báo ở scope ngoài
+                sortBySelectJQ.val('default');
+                if ($.fn.niceSelect) {
+                    sortBySelectJQ.niceSelect('update');
+                    console.log("NiceSelect updated for sort."); // DEBUG
+                }
+            } else if (sortBySelect) { // Fallback nếu sortBySelectJQ không có (ít khả năng)
+                sortBySelect.value = 'default';
+            }
 
-            // Reset price slider
+
+            // Reset price slider và input fields
             const $priceRange = $(".price-range");
-            if ($priceRange.data("ui-slider")) {
+            if ($priceRange.length && $priceRange.data("ui-slider")) { // Kiểm tra slider tồn tại và đã init
                 const minSliderVal = $priceRange.slider("option", "min");
                 const maxSliderVal = $priceRange.slider("option", "max");
                 $priceRange.slider("values", 0, minSliderVal);
                 $priceRange.slider("values", 1, maxSliderVal);
                 if (minAmountInput) minAmountInput.value = formatPriceVND(minSliderVal);
                 if (maxAmountInput) maxAmountInput.value = formatPriceVND(maxSliderVal);
-            } else {
-                if (minAmountInput) minAmountInput.value = formatPriceVND($priceRange.data('min') || 0);
-                if (maxAmountInput) maxAmountInput.value = formatPriceVND($priceRange.data('max') || 100000000);
+                console.log("Price slider UI reset to:", minSliderVal, "-", maxSliderVal); // DEBUG
+            } else if ($priceRange.length) { // Slider element tồn tại nhưng chưa init (ít khả năng nếu initShopGridPage chạy đúng)
+                const minData = $priceRange.data('min') || 0;
+                const maxData = $priceRange.data('max') || 100000000;
+                if (minAmountInput) minAmountInput.value = formatPriceVND(minData);
+                if (maxAmountInput) maxAmountInput.value = formatPriceVND(maxData);
+                console.log("Price slider UI (fallback) reset to data attributes:", minData, "-", maxData); // DEBUG
             }
+
             // Quan trọng: Reset cả currentFilters.minPrice và currentFilters.maxPrice về null
-            currentFilters.minPrice = null;
-            currentFilters.maxPrice = null;
+            // Đã được thực hiện khi tạo lại object currentFilters ở trên
+            console.log("Final currentFilters before applying:", JSON.parse(JSON.stringify(currentFilters))); // DEBUG
+
             applyFiltersAndFetchProducts();
         });
     }

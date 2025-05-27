@@ -100,21 +100,30 @@ function reinitializeOwlCarousel($element, options) {
     } else { console.warn("jQuery or OwlCarousel not available or element not found for reinitializeOwlCarousel"); }
 }
 
+
+function getUserFullName() { // <<< HÀM MỚI
+
+    const fullName = localStorage.getItem('userFullName');
+    const username = localStorage.getItem('username'); // Fallback
+    // console.log("app.js: getUserFullName called, fullName from localStorage:", fullName);
+    return fullName ; // Ưu tiên fullName, nếu không có thì dùng username
+}
 // --- UI Update Functions for Header ---
 // Các hàm này sẽ được gọi từ DOMContentLoaded
 function updateHeaderAuthState() {
     // console.log("app.js: updateHeaderAuthState called");
+    const displayName = getUserFullName(); // <<< SỬ DỤNG HÀM MỚI
     const username = getUsername();
     const humbergerAuthSection = document.getElementById('humberger-auth-section');
     const headerAuthSection = document.getElementById('header-auth-section');
     let authHtml;
 
-    if (isLoggedIn() && username) {
+    if (isLoggedIn() && displayName) {
         // console.log("app.js: Rendering logged-in state for:", username);
         authHtml = `
             <div class="dropdown header_auth_dropdown">
                 <a href="#" class="dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" style="color: #1c1c1c; font-weight: 600;">
-                    <i class="fa fa-user"></i> ${username}
+                    <i class="fa fa-user"></i> ${displayName}
                 </a>
                 <div class="dropdown-menu dropdown-menu-right">
                     <a class="dropdown-item" href="./profile.html">My Profile</a>
@@ -470,6 +479,7 @@ window.globalApp = {
     getUserId: getUserId,
     getAuthToken: getAuthToken,
     getUsername: getUsername,
+    getUserFullName: getUserFullName, // <<< EXPOSE HÀM MỚI
     logoutUser: logoutUser,
     reinitializeSetBg: reinitializeSetBg,
     reinitializeOwlCarousel: reinitializeOwlCarousel, // Expose nếu cần

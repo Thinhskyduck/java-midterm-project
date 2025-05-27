@@ -79,9 +79,20 @@ document.addEventListener('DOMContentLoaded', function () {
                             return `<select class="form-control form-control-sm status-select" data-order-id="${row.id}">${optionsHtml}</select>`;
                         }
                     },
+                    // {
+                    //     data: 'createdAt', width: '15%',
+                    //     render: function (data) { return data ? new Date(data).toLocaleString('vi-VN') : 'N/A'; }
+                    // },
                     {
-                        data: 'createdAt', width: '15%',
-                        render: function (data) { return data ? new Date(data).toLocaleString('vi-VN') : 'N/A'; }
+                        data: 'createdAt',
+                        width: '15%',
+                        render: function (data) {
+                            if (!data) return 'N/A';
+                            const date = new Date(data);
+                            const dateString = date.toLocaleDateString('vi-VN'); // Định dạng ngày: DD/MM/YYYY
+                            const timeString = date.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit', second: '2-digit' }); // Định dạng giờ: HH:mm:ss
+                            return `${dateString} ${timeString}`; // Kết quả: DD/MM/YYYY HH:mm:ss
+                        }
                     },
                     {
                         data: null,

@@ -1,4 +1,5 @@
 document.addEventListener('DOMContentLoaded', function () {
+
     if (typeof window.AdminApp === 'undefined' || typeof window.AdminApp.fetchData !== 'function') {
         console.error("edit-user.js: AdminApp or essential functions are not available.");
         alert("Error: Admin core script not loaded.");
@@ -8,6 +9,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // DOM Elements từ edit_user.html
     const userEditForm = document.getElementById('user-edit-form');
+    const backButton = userEditForm ? userEditForm.querySelector('a.btn-secondary') : document.getElementById('back-button');
     const userIdInput = document.getElementById('user-id');
     const usernameInput = document.getElementById('user-username');
     const fullNameInput = document.getElementById('user-full-name');
@@ -105,11 +107,25 @@ document.addEventListener('DOMContentLoaded', function () {
                     body: JSON.stringify(updatedUserData)
                 });
 
+                // if (result) { // API trả về UserDto đã cập nhật
+                //     displayFormMessage('User updated successfully!', 'success');
+                //     // loadUserForEditing(currentEditingUserId); // Load lại dữ liệu mới
+                //     setTimeout(() => {
+                //         window.location.href = 'manage_users.html'; // Quay về trang danh sách
+                //     }, 1500);
+                // } else {
+                //     displayFormMessage('Update failed. No response data.', 'danger');
+                // }
                 if (result) { // API trả về UserDto đã cập nhật
                     displayFormMessage('User updated successfully!', 'success');
-                    // loadUserForEditing(currentEditingUserId); // Load lại dữ liệu mới
                     setTimeout(() => {
-                        window.location.href = 'manage_users.html'; // Quay về trang danh sách
+                        if (!isLoggedIn() || !getAuthToken()) {
+                            displayFormMessage("Session expired. Redirecting to login.", "warning");
+                            window.location.href = '../login.html';
+                        } else {
+                            console.log("Redirecting to manage_users.html after save"); // Debug log
+                            window.location.href = 'manage_users.html';
+                        }
                     }, 1500);
                 } else {
                     displayFormMessage('Update failed. No response data.', 'danger');
@@ -123,10 +139,27 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-
+    // Thêm vào cuối file edit-user.js, trước initEditUserPage()
+    if (backButton && backButton.tagName === 'BUTTON') {
+        backButton.addEventListener('click', function (e) {
+            e.preventDefault();
+            if (!isLoggedIn() || !getAuthToken()) {
+                displayFormMessage("Session expired. Please log in again.", "danger");
+                console.error("Not logged in or missing token. Redirecting to login.");
+                setTimeout(() => {
+                    window.location.href = '../login.html';
+                }, 1500);
+                return;
+            }
+            console.log("Navigating to manage_users.html"); // Debug log
+            window.location.href = 'manage_users.html';
+        });
+    }
     // --- Initialization ---
     function initEditUserPage() {
         if (!isLoggedIn()) {
+            console.error("Not logged in or missing token. Redirecting to login.");
+            displayFormMessage("Session expired. Please log in again.", "danger");
             window.location.href = '../login.html';
             return;
         }
@@ -135,11 +168,17 @@ document.addEventListener('DOMContentLoaded', function () {
         currentEditingUserId = getUserIdFromUrl();
         if (currentEditingUserId) {
             loadUserForEditing(currentEditingUserId);
+            if (backButton) {
+                backButton.href = 'manage_users.html';
+            }
         } else {
             const pageTitle = document.querySelector('.main-container .title h4');
             if (pageTitle) pageTitle.textContent = 'Error: No User ID specified';
             displayFormMessage("No User ID provided in the URL.", "danger");
             if(userEditForm) userEditForm.style.display = 'none'; // Ẩn form nếu không có ID
+            if (backButton) {
+                backButton.href = 'manage_users.html';
+            }
         }
     }
 

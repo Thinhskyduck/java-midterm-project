@@ -8,6 +8,7 @@ import com.example.springcommerce.exception.EmptyCartException;
 import com.example.springcommerce.exception.InsufficientStockException;
 import com.example.springcommerce.exception.ResourceNotFoundException;
 import com.example.springcommerce.repository.*;
+import jakarta.mail.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +36,8 @@ public class OrderServiceImpl implements OrderService {
     private static final List<String> VALID_ORDER_STATUSES = List.of(
             ORDER_STATUS_PENDING, "CONFIRMED", "SHIPPED", "DELIVERED", "CANCELLED"
     );
-
+    @Autowired // Thêm @Autowired nếu chưa có (hoặc dùng constructor injection)
+    private EmailService emailService; // Inject EmailService
 
     @Autowired
     public OrderServiceImpl(UserRepository userRepository,
@@ -100,6 +102,15 @@ public class OrderServiceImpl implements OrderService {
         Order savedOrder = orderRepository.save(order);
         cart.setStatus(CART_STATUS_CHECKED_OUT);
         cartRepository.save(cart);
+        // <<< GỬI EMAIL XÁC NHẬN ĐƠN HÀNG >>>
+        try {
+            // savedOrder đã chứa User và OrderItems (do cascade và fetch trong transaction)
+            emailService.sendOrderConfirmationEmail(savedOrder.getUser(), savedOrder);
+        } catch (MessagingException e) {
+            // Log lỗi gửi email nhưng không nên làm hỏng giao dịch đặt hàng
+            System.err.println("Error sending order confirmation email for order ID " + savedOrder.getId() + ": " + e.getMessage());
+            // Bạn có thể thêm logic để retry gửi email hoặc thông báo cho admin
+        }
         return mapOrderToOrderResponse(savedOrder);
     }
 

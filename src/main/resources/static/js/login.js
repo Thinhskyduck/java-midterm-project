@@ -38,11 +38,12 @@ document.addEventListener('DOMContentLoaded', function () {
                     localStorage.setItem('accessToken', responseData.accessToken);
                     localStorage.setItem('username', responseData.username); // Đảm bảo responseData.username có giá trị
                     localStorage.setItem('userId', String(responseData.userId)); // Đảm bảo responseData.userId có giá trị và chuyển thành chuỗi
+                    localStorage.setItem('userFullName', responseData.fullName || responseData.username);
 
                     console.log("Stored in localStorage - accessToken:", localStorage.getItem('accessToken')); // DEBUG
                     console.log("Stored in localStorage - username:", localStorage.getItem('username'));   // DEBUG
                     console.log("Stored in localStorage - userId:", localStorage.getItem('userId'));     // DEBUG
-
+                    console.log("Stored in localStorage - userFullName:", localStorage.getItem('userFullName')); // DEBUG
 
                     setTimeout(() => {
                         const redirectUrl = sessionStorage.getItem('redirectAfterLogin');
@@ -58,7 +59,7 @@ document.addEventListener('DOMContentLoaded', function () {
                                 window.location.href = './index.html';
                             }
                         }
-                    }, 1000); // Giảm thời gian chờ một chút
+                    }, 700); // Giảm thời gian chờ một chút
 
                 } else {
                     displayMessage(responseData.message || 'Login failed. Please check credentials.', 'danger');
