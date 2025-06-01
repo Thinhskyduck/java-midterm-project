@@ -1,6 +1,6 @@
 # 📦 Java Midterm Project - Quản Lý Cửa Hàng Bán Kính Thiên Văn
 
-Dự án giữa kỳ môn Lập trình Java - Đại học Tôn Đức Thắng. Ứng dụng Spring Boot để quản lý sản phẩm kính thiên văn, đơn hàng và người dùng.
+Dự án giữa kỳ môn Công nghệ Java. Ứng dụng Spring Boot để quản lý sản phẩm kính thiên văn, đơn hàng và người dùng.
 
 ---
 
